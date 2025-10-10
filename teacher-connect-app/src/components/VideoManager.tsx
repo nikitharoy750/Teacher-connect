@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Play, Edit, Trash2, Eye, ThumbsUp, Download, MoreVertical, Calendar, Clock } from 'lucide-react'
+import { Play, Edit, Trash2, Eye, ThumbsUp, Download, MoreVertical, Calendar } from 'lucide-react'
 
 interface Video {
   id: string
@@ -23,7 +23,7 @@ interface VideoManagerProps {
   onToggleStatus: (videoId: string) => void
 }
 
-const VideoManager: React.FC<VideoManagerProps> = ({ videos, onEdit, onDelete, onToggleStatus }) => {
+const VideoManager: React.FC<VideoManagerProps> = ({ videos, onEdit, onDelete, onToggleStatus: _ }) => {
   const [selectedVideos, setSelectedVideos] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<'date' | 'views' | 'likes' | 'title'>('date')
   const [filterBy, setFilterBy] = useState<'all' | 'published' | 'processing' | 'draft'>('all')
@@ -51,13 +51,7 @@ const VideoManager: React.FC<VideoManagerProps> = ({ videos, onEdit, onDelete, o
       }
     })
 
-  const handleSelectAll = () => {
-    if (selectedVideos.length === filteredVideos.length) {
-      setSelectedVideos([])
-    } else {
-      setSelectedVideos(filteredVideos.map(video => video.id))
-    }
-  }
+
 
   const handleSelectVideo = (videoId: string) => {
     setSelectedVideos(prev =>

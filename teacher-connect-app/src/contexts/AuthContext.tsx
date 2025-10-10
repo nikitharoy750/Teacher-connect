@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Listen for auth changes (only in real Supabase mode)
     if (!isDemoMode) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
         setSession(session)
         if (session?.user) {
           await fetchUserProfile(session.user.id)

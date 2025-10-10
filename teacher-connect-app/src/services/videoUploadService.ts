@@ -54,7 +54,7 @@ export class VideoUploadService {
 
   // Generate video thumbnail
   private generateThumbnail(file: File): Promise<Blob> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const video = document.createElement('video')
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')
@@ -108,7 +108,7 @@ export class VideoUploadService {
     file: File,
     onProgress: (progress: UploadProgress) => void
   ): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       let progress = 0
       const totalSize = file.size
       const chunkSize = totalSize / 20 // Simulate 20 chunks

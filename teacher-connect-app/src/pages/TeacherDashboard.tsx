@@ -26,51 +26,7 @@ const TeacherDashboard: React.FC = () => {
     { id: 3, title: 'English Grammar Basics', views: 98, likes: 15, subject: 'English' }
   ]
 
-  // Mock video data for VideoManager
-  const mockVideos = [
-    {
-      id: '1',
-      title: 'Introduction to Algebra',
-      description: 'Learn the basics of algebraic expressions and equations',
-      subject: 'Mathematics',
-      gradeLevel: '9th Grade',
-      thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop',
-      duration: '15:30',
-      uploadDate: '2024-01-15',
-      views: 156,
-      likes: 23,
-      status: 'published' as const,
-      fileSize: '45.2 MB'
-    },
-    {
-      id: '2',
-      title: 'Photosynthesis Explained',
-      description: 'Understanding how plants make their own food through photosynthesis',
-      subject: 'Biology',
-      gradeLevel: '10th Grade',
-      thumbnail: 'https://images.unsplash.com/photo-1574263867128-a3d5c1b1deaa?w=400&h=300&fit=crop',
-      duration: '12:45',
-      uploadDate: '2024-01-10',
-      views: 203,
-      likes: 31,
-      status: 'published' as const,
-      fileSize: '38.7 MB'
-    },
-    {
-      id: '3',
-      title: 'English Grammar Basics',
-      description: 'Essential grammar rules for better writing and communication',
-      subject: 'English',
-      gradeLevel: '8th Grade',
-      thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop',
-      duration: '18:20',
-      uploadDate: '2024-01-08',
-      views: 98,
-      likes: 15,
-      status: 'processing' as const,
-      fileSize: '52.1 MB'
-    }
-  ]
+
 
   // Load user's videos
   useEffect(() => {

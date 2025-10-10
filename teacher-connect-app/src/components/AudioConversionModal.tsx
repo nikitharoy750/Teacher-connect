@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { X, Volume2, Download, Play, Pause, FileAudio, Loader, CheckCircle, AlertCircle, Settings, Headphones } from 'lucide-react'
-import { audioConversionService, ConversionProgress, AudioConversionResult } from '../services/audioConversionService'
+import { X, Volume2, Download, Play, Pause, FileAudio, Loader, CheckCircle, AlertCircle, Headphones } from 'lucide-react'
+import { audioConversionService } from '../services/audioConversionService'
+import type { ConversionProgress, AudioConversionResult } from '../services/audioConversionService'
 
 interface Video {
   id: string

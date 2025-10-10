@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, SkipBack, SkipForward, Settings, Download, Heart, Share2, BookOpen } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward, Settings, Download, Heart, Share2 } from 'lucide-react'
 import AudioConversionModal from './AudioConversionModal'
 
 interface Video {
@@ -25,7 +25,7 @@ interface VideoPlayerProps {
   onClose: () => void
   onLike: (videoId: string) => void
   onDownload: (videoId: string) => void
-  onConvertToAudio: (videoId: string) => void
+
   isLiked?: boolean
 }
 
@@ -34,7 +34,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   onClose,
   onLike,
   onDownload,
-  onConvertToAudio,
+
   isLiked = false
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -44,7 +44,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [volume, setVolume] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
   const [showControls, setShowControls] = useState(true)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [, setIsFullscreen] = useState(false)
   const [playbackRate, setPlaybackRate] = useState(1)
   const [showSettings, setShowSettings] = useState(false)
   const [showAudioConversion, setShowAudioConversion] = useState(false)

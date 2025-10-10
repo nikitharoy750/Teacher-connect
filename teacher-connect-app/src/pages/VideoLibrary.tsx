@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Play, Download, Heart, Search, Clock, User, Volume2, Filter, Grid, List, Star, TrendingUp, BookOpen, Eye } from 'lucide-react'
+import { Search, Grid, List } from 'lucide-react'
 import VideoPlayer from '../components/VideoPlayer'
 import VideoCard from '../components/VideoCard'
-import { videoUploadService } from '../services/videoUploadService'
+
 
 const VideoLibrary: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -15,7 +15,7 @@ const VideoLibrary: React.FC = () => {
   const [favoriteVideos, setFavoriteVideos] = useState<Set<string>>(new Set())
   const [videos, setVideos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [showFilters, setShowFilters] = useState(false)
+
 
   // Load videos from all teachers
   useEffect(() => {
@@ -249,10 +249,7 @@ const VideoLibrary: React.FC = () => {
     // Implement download functionality
   }
 
-  const handleConvertToAudio = (videoId: string) => {
-    console.log('Convert to audio:', videoId)
-    // Implement video-to-audio conversion
-  }
+
 
   if (loading) {
     return (
@@ -406,7 +403,7 @@ const VideoLibrary: React.FC = () => {
           onClose={() => setSelectedVideo(null)}
           onLike={handleLike}
           onDownload={handleDownload}
-          onConvertToAudio={handleConvertToAudio}
+
           isLiked={likedVideos.has(selectedVideo.id)}
         />
       )}

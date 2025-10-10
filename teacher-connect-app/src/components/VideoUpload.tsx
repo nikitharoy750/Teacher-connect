@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Upload, X, Play, FileVideo, AlertCircle, CheckCircle } from 'lucide-react'
+import { Upload, X, FileVideo, AlertCircle, CheckCircle } from 'lucide-react'
 import { videoUploadService } from '../services/videoUploadService'
 import type { VideoUploadData } from '../services/videoUploadService'
 import { useAuth } from '../contexts/AuthContext'

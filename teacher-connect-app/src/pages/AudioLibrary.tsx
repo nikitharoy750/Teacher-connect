@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Play, Pause, Download, Trash2, Volume2, Clock, FileAudio, Search, Filter, Headphones } from 'lucide-react'
+import { Play, Pause, Download, Trash2, Volume2, Search, Headphones } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { audioConversionService } from '../services/audioConversionService'
 

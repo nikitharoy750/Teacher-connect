@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Play, Clock, Eye, ThumbsUp, BookOpen, Download, Heart, Share2, MoreVertical, Volume2 } from 'lucide-react'
+import { Play, ThumbsUp, Download, Heart, Share2, MoreVertical, Volume2 } from 'lucide-react'
 import AudioConversionModal from './AudioConversionModal'
 
 interface Video {
@@ -27,7 +27,7 @@ interface VideoCardProps {
   onLike: (videoId: string) => void
   onDownload: (videoId: string) => void
   onAddToFavorites: (videoId: string) => void
-  onConvertToAudio?: (videoId: string) => void
+
   isLiked?: boolean
   isFavorited?: boolean
   layout?: 'grid' | 'list'
@@ -39,7 +39,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
   onLike,
   onDownload,
   onAddToFavorites,
-  onConvertToAudio,
+
   isLiked = false,
   isFavorited = false,
   layout = 'grid'

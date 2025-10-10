@@ -174,13 +174,13 @@ export class AudioConversionService {
 
   // Simulate audio conversion for demo mode
   private async simulateAudioConversion(
-    videoFile: File | string,
+    _videoFile: File | string,
     onProgress: (progress: ConversionProgress) => void,
     format: 'mp3' | 'wav'
   ): Promise<AudioConversionResult> {
     return new Promise((resolve) => {
       let progress = 0
-      const totalSteps = 100
+      // const _totalSteps = 100
       const stepSize = 2
 
       const simulateStep = () => {
@@ -237,24 +237,7 @@ export class AudioConversionService {
     })
   }
 
-  // Get video duration from file
-  private getVideoDuration(file: File): Promise<number> {
-    return new Promise((resolve, reject) => {
-      const video = document.createElement('video')
-      video.preload = 'metadata'
-      
-      video.onloadedmetadata = () => {
-        window.URL.revokeObjectURL(video.src)
-        resolve(video.duration)
-      }
-      
-      video.onerror = () => {
-        reject(new Error('Failed to load video metadata'))
-      }
-      
-      video.src = URL.createObjectURL(file)
-    })
-  }
+
 
   // Save converted audio to localStorage (demo mode)
   saveAudioToStorage(videoId: string, audioResult: AudioConversionResult): void {

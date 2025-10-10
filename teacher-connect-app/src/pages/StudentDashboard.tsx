@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Play, BookOpen, Download, Heart, TrendingUp, Clock, Star, Volume2, Search, Filter, Award, Target, Users } from 'lucide-react'
+import { Play, BookOpen, Download, Heart, Volume2, Search, Award, Target } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { Link } from 'react-router-dom'
 import VideoCard from '../components/VideoCard'
@@ -151,10 +151,7 @@ const StudentDashboard: React.FC = () => {
     // Implement download functionality
   }
 
-  const handleConvertToAudio = (videoId: string) => {
-    console.log('Convert to audio:', videoId)
-    // Implement video-to-audio conversion
-  }
+
 
   if (loading) {
     return (
@@ -339,7 +336,7 @@ const StudentDashboard: React.FC = () => {
           onClose={() => setSelectedVideo(null)}
           onLike={handleLike}
           onDownload={handleDownload}
-          onConvertToAudio={handleConvertToAudio}
+
           isLiked={likedVideos.has(selectedVideo.id)}
         />
       )}
