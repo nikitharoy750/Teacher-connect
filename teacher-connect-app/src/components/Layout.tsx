@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { LogOut, BookOpen, Users, Video, Award, Volume2, Upload, Shield, Coins } from 'lucide-react'
+import { LogOut, BookOpen, Users, Video, Award, Volume2, Upload, Shield, Coins, FileText } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -52,6 +52,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         <Coins className="h-5 w-5" />
                         <span className="font-medium">Credits</span>
                       </Link>
+                      <Link to="/assessments" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                        <FileText className="h-5 w-5" />
+                        <span className="font-medium">Assessments</span>
+                      </Link>
                     </>
                   )}
 
@@ -64,6 +68,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <Link to="/moderation" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
                         <Shield className="h-5 w-5" />
                         <span className="font-medium">Moderation</span>
+                      </Link>
+                      <Link to="/teacher-assessments" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                        <FileText className="h-5 w-5" />
+                        <span className="font-medium">Assessments</span>
                       </Link>
                     </>
                   ) : (

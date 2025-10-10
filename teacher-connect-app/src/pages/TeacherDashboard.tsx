@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Upload, Video, FileText, Users, Award, TrendingUp, Plus, Eye, BarChart3, Shield } from 'lucide-react'
+import { Upload, Video, FileText, Users, Award, TrendingUp, Plus, Eye, BarChart3, Shield, BookOpen } from 'lucide-react'
 import VideoUpload from '../components/VideoUpload'
 import VideoManager from '../components/VideoManager'
 import { videoUploadService } from '../services/videoUploadService'
@@ -173,6 +173,7 @@ const TeacherDashboard: React.FC = () => {
             { id: 'overview', name: 'Overview', icon: BarChart3 },
             { id: 'videos', name: 'My Videos', icon: Video },
             { id: 'upload', name: 'Upload Content', icon: Upload },
+            { id: 'assessments', name: 'Assessments', icon: BookOpen },
             { id: 'moderation', name: 'Moderation', icon: Shield },
             { id: 'notes', name: 'Notes & Materials', icon: FileText }
           ].map((tab) => (
@@ -315,6 +316,28 @@ const TeacherDashboard: React.FC = () => {
                 <Plus className="h-6 w-6 mr-2" />
                 Upload Your First Video
               </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'assessments' && (
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">📝 Assessment Management</h3>
+              <p className="card-description">Create and manage assessments for your students</p>
+            </div>
+            <div className="text-center py-12">
+              <div className="bg-gradient-primary bg-opacity-10 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                <BookOpen className="h-12 w-12 text-primary" />
+              </div>
+              <h4 className="text-xl font-semibold text-gray-900 mb-3">Assessment Center</h4>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                Create quizzes and tests to evaluate student understanding and provide instant feedback.
+              </p>
+              <Link to="/teacher-assessments" className="btn-primary px-8 py-4 text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <BookOpen className="h-5 w-5 mr-2" />
+                Manage Assessments
+              </Link>
             </div>
           </div>
         )}

@@ -12,6 +12,8 @@ import AudioLibrary from './pages/AudioLibrary'
 import StudentUploads from './pages/StudentUploads'
 import ModerationDashboard from './pages/ModerationDashboard'
 import CreditsDashboard from './pages/CreditsDashboard'
+import Assessments from './pages/Assessments'
+import TeacherAssessments from './pages/TeacherAssessments'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -76,6 +78,22 @@ function App() {
                 element={
                   <ProtectedRoute requiredRole="teacher">
                     <ModerationDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/assessments"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <Assessments />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/teacher-assessments"
+                element={
+                  <ProtectedRoute requiredRole="teacher">
+                    <TeacherAssessments />
                   </ProtectedRoute>
                 }
               />
