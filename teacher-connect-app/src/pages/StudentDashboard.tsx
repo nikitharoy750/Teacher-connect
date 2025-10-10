@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Play, BookOpen, Download, Heart, Volume2, Search, Award, Target } from 'lucide-react'
+import { Play, BookOpen, Download, Heart, Volume2, Search, Award, Target, Upload, Coins } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { Link } from 'react-router-dom'
 import VideoCard from '../components/VideoCard'
@@ -241,6 +241,22 @@ const StudentDashboard: React.FC = () => {
             <div className="text-left">
               <div className="font-semibold text-gray-900">Audio Library</div>
               <div className="text-sm text-gray-600">Manage your audio files</div>
+            </div>
+          </Link>
+
+          <Link to="/student-uploads" className="flex items-center space-x-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+            <Upload className="h-6 w-6 text-purple-600" />
+            <div className="text-left">
+              <div className="font-semibold text-gray-900">Upload Videos</div>
+              <div className="text-sm text-gray-600">Share knowledge & earn credits</div>
+            </div>
+          </Link>
+
+          <Link to="/credits" className="flex items-center space-x-3 p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors">
+            <Coins className="h-6 w-6 text-yellow-600" />
+            <div className="text-left">
+              <div className="font-semibold text-gray-900">Credits Dashboard</div>
+              <div className="text-sm text-gray-600">Track your earnings</div>
             </div>
           </Link>
 

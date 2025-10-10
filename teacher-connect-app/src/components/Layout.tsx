@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { LogOut, BookOpen, Users, Video, Award, Volume2 } from 'lucide-react'
+import { LogOut, BookOpen, Users, Video, Award, Volume2, Upload, Shield, Coins } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -39,17 +39,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Link>
 
                   {user.role === 'student' && (
-                    <Link to="/audio" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
-                      <Volume2 className="h-5 w-5" />
-                      <span className="font-medium">Audio</span>
-                    </Link>
+                    <>
+                      <Link to="/audio" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                        <Volume2 className="h-5 w-5" />
+                        <span className="font-medium">Audio</span>
+                      </Link>
+                      <Link to="/student-uploads" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                        <Upload className="h-5 w-5" />
+                        <span className="font-medium">My Uploads</span>
+                      </Link>
+                      <Link to="/credits" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                        <Coins className="h-5 w-5" />
+                        <span className="font-medium">Credits</span>
+                      </Link>
+                    </>
                   )}
 
                   {user.role === 'teacher' ? (
-                    <Link to="/teacher-dashboard" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
-                      <Users className="h-5 w-5" />
-                      <span className="font-medium">Dashboard</span>
-                    </Link>
+                    <>
+                      <Link to="/teacher-dashboard" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                        <Users className="h-5 w-5" />
+                        <span className="font-medium">Dashboard</span>
+                      </Link>
+                      <Link to="/moderation" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                        <Shield className="h-5 w-5" />
+                        <span className="font-medium">Moderation</span>
+                      </Link>
+                    </>
                   ) : (
                     <Link to="/student-dashboard" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
                       <Award className="h-5 w-5" />
