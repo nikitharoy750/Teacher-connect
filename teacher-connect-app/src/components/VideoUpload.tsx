@@ -1,11 +1,18 @@
 import React, { useState, useRef } from 'react'
 import { Upload, X, Play, FileVideo, AlertCircle, CheckCircle } from 'lucide-react'
-import { videoUploadService, VideoUploadData, UploadProgress } from '../services/videoUploadService'
+import { videoUploadService } from '../services/videoUploadService'
+import type { VideoUploadData } from '../services/videoUploadService'
 import { useAuth } from '../contexts/AuthContext'
 
 interface VideoUploadProps {
   onUpload: (result: { videoId: string; videoUrl: string; thumbnailUrl?: string }) => void
   onClose: () => void
+}
+
+interface UploadProgress {
+  progress: number
+  status: 'uploading' | 'processing' | 'complete' | 'error'
+  message: string
 }
 
 const VideoUpload: React.FC<VideoUploadProps> = ({ onUpload, onClose }) => {

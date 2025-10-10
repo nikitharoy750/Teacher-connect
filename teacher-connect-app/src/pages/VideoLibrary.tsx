@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Play, Download, Heart, Search, Filter, Clock, User, Volume2 } from 'lucide-react'
+import { Play, Download, Heart, Search, Clock, User, Volume2 } from 'lucide-react'
 
 const VideoLibrary: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')

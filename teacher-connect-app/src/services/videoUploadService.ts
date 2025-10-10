@@ -29,7 +29,6 @@ export class VideoUploadService {
   // Generate unique filename
   private generateFileName(originalName: string, userId: string): string {
     const timestamp = Date.now()
-    const extension = originalName.split('.').pop()
     const cleanName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_')
     return `${userId}/${timestamp}_${cleanName}`
   }
@@ -55,7 +54,7 @@ export class VideoUploadService {
 
   // Generate video thumbnail
   private generateThumbnail(file: File): Promise<Blob> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const video = document.createElement('video')
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')
@@ -81,7 +80,25 @@ export class VideoUploadService {
         }
       }
       
-      video.onerror = () => reject(new Error('Failed to load video'))
+      video.onerror = () => {
+        console.warn('Failed to generate thumbnail from video')
+        // Return a default thumbnail blob instead of rejecting
+        const canvas = document.createElement('canvas')
+        canvas.width = 320
+        canvas.height = 180
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.fillStyle = '#6366f1'
+          ctx.fillRect(0, 0, 320, 180)
+          ctx.fillStyle = 'white'
+          ctx.font = '16px Arial'
+          ctx.textAlign = 'center'
+          ctx.fillText('Video Thumbnail', 160, 90)
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob)
+          }, 'image/jpeg', 0.8)
+        }
+      }
       video.src = URL.createObjectURL(file)
     })
   }
@@ -144,7 +161,7 @@ export class VideoUploadService {
       })
 
       // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('videos')
         .upload(fileName, file, {
           cacheControl: '3600',
@@ -205,7 +222,8 @@ export class VideoUploadService {
       const videoFileName = this.generateFileName(videoData.file.name, userId)
       
       // Check if we have real Supabase credentials
-      const hasRealSupabase = !supabase.supabaseUrl.includes('demo')
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co'
+      const hasRealSupabase = !supabaseUrl.includes('demo')
 
       let videoUrl: string
       let thumbnailUrl: string | undefined
@@ -316,7 +334,8 @@ export class VideoUploadService {
 
   // Get uploaded videos for a teacher
   async getTeacherVideos(teacherId: string): Promise<any[]> {
-    const hasRealSupabase = !supabase.supabaseUrl.includes('demo')
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co'
+    const hasRealSupabase = !supabaseUrl.includes('demo')
 
     if (hasRealSupabase) {
       const { data, error } = await supabase
@@ -339,7 +358,8 @@ export class VideoUploadService {
 
   // Delete video
   async deleteVideo(videoId: string, userId: string): Promise<void> {
-    const hasRealSupabase = !supabase.supabaseUrl.includes('demo')
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co'
+    const hasRealSupabase = !supabaseUrl.includes('demo')
 
     if (hasRealSupabase) {
       // Delete from database

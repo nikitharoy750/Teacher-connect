@@ -34,7 +34,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     // Check if we're in demo mode
-    const isDemoMode = supabase.supabaseUrl.includes('demo')
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co'
+    const isDemoMode = supabaseUrl.includes('demo')
 
     if (isDemoMode) {
       // Load demo user from localStorage
@@ -107,7 +108,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signUp = async (email: string, password: string, fullName: string, role: 'teacher' | 'student') => {
     // Check if we're in demo mode
-    const isDemoMode = supabase.supabaseUrl.includes('demo')
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co'
+    const isDemoMode = supabaseUrl.includes('demo')
 
     if (isDemoMode) {
       // Demo mode sign up - just create a mock user
@@ -161,7 +163,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signIn = async (email: string, password: string) => {
     // Check if we're in demo mode
-    const isDemoMode = supabase.supabaseUrl.includes('demo')
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co'
+    const isDemoMode = supabaseUrl.includes('demo')
 
     if (isDemoMode) {
       // Demo mode authentication
@@ -212,7 +215,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     // Check if we're in demo mode
-    const isDemoMode = supabase.supabaseUrl.includes('demo')
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo-project.supabase.co'
+    const isDemoMode = supabaseUrl.includes('demo')
 
     if (isDemoMode) {
       // Demo mode sign out
