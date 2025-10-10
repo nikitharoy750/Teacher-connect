@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rural Ed Platform</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>📚 Rural Education Platform</h1>
+    <button onclick="toggleLanguage()">🌐 Toggle Language</button>
+  </header>
+
+  <section id="video-library">
+    <h2>Expert Video Library</h2>
+    <video controls src="assets/sample-video.mp4"></video>
+    <p>Downloadable for offline use</p>
+  </section>
+
+  <section id="collaboration">
+    <h2>Teacher PLC & Student Leader Dashboard</h2>
+    <div class="card">
+      <h3>👩‍🏫 Teacher PLC</h3>
+      <p>Chat with expert teachers, ask questions, share reflections.</p>
+    </div>
+    <div class="card">
+      <h3>👨‍🎓 Student Leader</h3>
+      <p>Top students help peers. Progress tracked here.</p>
+    </div>
+  </section>
+
+  <section id="doubt-resolution">
+    <h2>💬 Instant Doubt Resolution</h2>
+    <input type="text" id="doubtInput" placeholder="Type your doubt..." />
+    <button onclick="resolveDoubt()">Ask AI</button>
+    <p id="doubtResponse"></p>
+  </section>
+
+  <section id="leaderboard">
+    <h2>🏆 Leaderboard & Rewards</h2>
+    <ul id="leaderboardList"></ul>
+  </section>
+
+  <footer>
+    <p>Made with ❤️ by InnovHers</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
