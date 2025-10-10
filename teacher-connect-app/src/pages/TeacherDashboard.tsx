@@ -1,11 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Upload, Video, FileText, Users, Award, TrendingUp, Plus, Eye, BarChart3 } from 'lucide-react'
 import VideoUpload from '../components/VideoUpload'
 import VideoManager from '../components/VideoManager'
+import { videoUploadService } from '../services/videoUploadService'
+import { useAuth } from '../contexts/AuthContext'
 
 const TeacherDashboard: React.FC = () => {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('overview')
   const [showVideoUpload, setShowVideoUpload] = useState(false)
+  const [userVideos, setUserVideos] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   const stats = {
     videosUploaded: 12,
@@ -67,11 +72,38 @@ const TeacherDashboard: React.FC = () => {
     }
   ]
 
-  const handleVideoUpload = (videoData: any) => {
-    console.log('Video uploaded:', videoData)
+  // Load user's videos
+  useEffect(() => {
+    const loadVideos = async () => {
+      if (!user) return
+
+      try {
+        setLoading(true)
+        const videos = await videoUploadService.getTeacherVideos(user.id)
+        setUserVideos(videos)
+      } catch (error) {
+        console.error('Failed to load videos:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadVideos()
+  }, [user])
+
+  const handleVideoUpload = async (result: { videoId: string; videoUrl: string; thumbnailUrl?: string }) => {
+    console.log('Video uploaded successfully:', result)
     setShowVideoUpload(false)
-    // Here you would typically upload to Supabase storage
-    // and save metadata to the database
+
+    // Refresh the videos list
+    if (user) {
+      try {
+        const videos = await videoUploadService.getTeacherVideos(user.id)
+        setUserVideos(videos)
+      } catch (error) {
+        console.error('Failed to refresh videos:', error)
+      }
+    }
   }
 
   const handleEditVideo = (video: any) => {
@@ -79,9 +111,21 @@ const TeacherDashboard: React.FC = () => {
     // Open edit modal
   }
 
-  const handleDeleteVideo = (videoId: string) => {
-    console.log('Delete video:', videoId)
-    // Confirm and delete video
+  const handleDeleteVideo = async (videoId: string) => {
+    if (!user) return
+
+    const confirmed = window.confirm('Are you sure you want to delete this video? This action cannot be undone.')
+    if (!confirmed) return
+
+    try {
+      await videoUploadService.deleteVideo(videoId, user.id)
+      // Refresh the videos list
+      const videos = await videoUploadService.getTeacherVideos(user.id)
+      setUserVideos(videos)
+    } catch (error) {
+      console.error('Failed to delete video:', error)
+      alert('Failed to delete video. Please try again.')
+    }
   }
 
   const handleToggleStatus = (videoId: string) => {
@@ -263,12 +307,32 @@ const TeacherDashboard: React.FC = () => {
               <h3 className="card-title">🎬 My Video Library</h3>
               <p className="card-description">Manage your uploaded videos, view analytics, and update content</p>
             </div>
-            <VideoManager
-              videos={mockVideos}
-              onEdit={handleEditVideo}
-              onDelete={handleDeleteVideo}
-              onToggleStatus={handleToggleStatus}
-            />
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading your videos...</p>
+              </div>
+            ) : (
+              <VideoManager
+                videos={userVideos.map(video => ({
+                  id: video.id,
+                  title: video.title,
+                  description: video.description,
+                  subject: video.subject,
+                  gradeLevel: video.grade_level,
+                  thumbnail: video.thumbnail_url || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop',
+                  duration: `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}`,
+                  uploadDate: video.upload_date,
+                  views: video.views || 0,
+                  likes: video.upvotes || 0,
+                  status: 'published' as const,
+                  fileSize: '45.2 MB' // TODO: Calculate actual file size
+                }))}
+                onEdit={handleEditVideo}
+                onDelete={handleDeleteVideo}
+                onToggleStatus={handleToggleStatus}
+              />
+            )}
           </div>
         )}
 

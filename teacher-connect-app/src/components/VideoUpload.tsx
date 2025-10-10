@@ -1,27 +1,25 @@
 import React, { useState, useRef } from 'react'
 import { Upload, X, Play, FileVideo, AlertCircle, CheckCircle } from 'lucide-react'
+import { videoUploadService, VideoUploadData, UploadProgress } from '../services/videoUploadService'
+import { useAuth } from '../contexts/AuthContext'
 
 interface VideoUploadProps {
-  onUpload: (videoData: VideoUploadData) => void
+  onUpload: (result: { videoId: string; videoUrl: string; thumbnailUrl?: string }) => void
   onClose: () => void
 }
 
-interface VideoUploadData {
-  file: File
-  title: string
-  description: string
-  subject: string
-  gradeLevel: string
-  thumbnail?: File
-}
-
 const VideoUpload: React.FC<VideoUploadProps> = ({ onUpload, onClose }) => {
+  const { user } = useAuth()
   const [dragActive, setDragActive] = useState(false)
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
   const [videoPreview, setVideoPreview] = useState<string | null>(null)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
-  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
+    progress: 0,
+    status: 'uploading',
+    message: ''
+  })
   const [isUploading, setIsUploading] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
@@ -103,37 +101,44 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onUpload, onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!validateForm()) return
+
+    if (!validateForm() || !user) return
 
     setIsUploading(true)
-    
-    // Simulate upload progress
-    const progressInterval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval)
-          return 90
-        }
-        return prev + 10
-      })
-    }, 200)
 
-    // Simulate upload delay
-    setTimeout(() => {
-      setUploadProgress(100)
-      setTimeout(() => {
-        onUpload({
-          file: videoFile!,
-          title: formData.title,
-          description: formData.description,
-          subject: formData.subject,
-          gradeLevel: formData.gradeLevel,
-          thumbnail: thumbnailFile || undefined
-        })
-        setIsUploading(false)
-      }, 500)
-    }, 2000)
+    try {
+      const videoData: VideoUploadData = {
+        file: videoFile!,
+        title: formData.title,
+        description: formData.description,
+        subject: formData.subject,
+        gradeLevel: formData.gradeLevel,
+        thumbnail: thumbnailFile || undefined
+      }
+
+      const result = await videoUploadService.uploadVideo(
+        videoData,
+        user.id,
+        (progress) => {
+          setUploadProgress(progress)
+        }
+      )
+
+      // Success! Call the parent callback
+      onUpload({
+        videoId: result.videoId,
+        videoUrl: result.videoUrl,
+        thumbnailUrl: result.thumbnailUrl
+      })
+
+    } catch (error) {
+      console.error('Upload failed:', error)
+      setErrors({
+        upload: error instanceof Error ? error.message : 'Upload failed. Please try again.'
+      })
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   return (
@@ -368,15 +373,43 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onUpload, onClose }) => {
           {isUploading && (
             <div className="bg-gray-50 rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Uploading...</span>
-                <span className="text-sm text-gray-500">{uploadProgress}%</span>
+                <span className="text-sm font-medium text-gray-700">{uploadProgress.message}</span>
+                <span className="text-sm text-gray-500">{Math.round(uploadProgress.progress)}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-gradient-primary h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    uploadProgress.status === 'error'
+                      ? 'bg-red-500'
+                      : uploadProgress.status === 'complete'
+                      ? 'bg-green-500'
+                      : 'bg-gradient-primary'
+                  }`}
+                  style={{ width: `${uploadProgress.progress}%` }}
                 />
               </div>
+              {uploadProgress.status === 'error' && (
+                <p className="text-red-600 text-sm mt-2 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  {uploadProgress.message}
+                </p>
+              )}
+              {uploadProgress.status === 'complete' && (
+                <p className="text-green-600 text-sm mt-2 flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  Upload successful!
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Upload Error */}
+          {errors.upload && !isUploading && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <p className="text-red-600 text-sm flex items-center">
+                <AlertCircle className="h-4 w-4 mr-2" />
+                {errors.upload}
+              </p>
             </div>
           )}
 
