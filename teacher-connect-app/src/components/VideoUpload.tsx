@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Upload, X, Play, FileVideo, AlertCircle, CheckCircle } from 'lucide-react'
 import { videoUploadService } from '../services/videoUploadService'
 import type { VideoUploadData } from '../services/videoUploadService'
@@ -38,6 +38,18 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onUpload, onClose }) => {
 
   const videoInputRef = useRef<HTMLInputElement>(null)
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isUploading) {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [onClose, isUploading])
 
   const subjects = [
     'Mathematics', 'Science', 'English', 'History', 'Geography',
@@ -148,17 +160,40 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onUpload, onClose }) => {
     }
   }
 
+  // Handle click outside to close modal
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget && !isUploading) {
+      onClose()
+    }
+  }
+
+  // Handle close with confirmation if uploading
+  const handleClose = () => {
+    if (isUploading) {
+      const confirmed = window.confirm('Upload is in progress. Are you sure you want to cancel?')
+      if (confirmed) {
+        onClose()
+      }
+    } else {
+      onClose()
+    }
+  }
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={handleBackdropClick}
+    >
       <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold font-heading text-gray-900">Upload Educational Video</h2>
             <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={handleClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
+              title={isUploading ? "Cancel upload" : "Close"}
             >
-              <X className="h-6 w-6 text-gray-500" />
+              <X className="h-6 w-6 text-gray-500 group-hover:text-gray-700" />
             </button>
           </div>
         </div>
@@ -424,11 +459,11 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onUpload, onClose }) => {
           <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="btn-ghost px-6 py-3"
-              disabled={isUploading}
+              disabled={false}
             >
-              Cancel
+              {isUploading ? 'Cancel Upload' : 'Cancel'}
             </button>
             <button
               type="submit"
