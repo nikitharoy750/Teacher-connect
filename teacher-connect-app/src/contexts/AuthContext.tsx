@@ -33,7 +33,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
+    // Check if we're in demo mode
+    const isDemoMode = supabase.supabaseUrl.includes('demo')
+
+    if (isDemoMode) {
+      // Load demo user from localStorage
+      const demoUser = localStorage.getItem('demo_user')
+      const demoSession = localStorage.getItem('demo_session')
+
+      if (demoUser && demoSession) {
+        setUser(JSON.parse(demoUser))
+        setSession(JSON.parse(demoSession))
+      }
+      setLoading(false)
+      return
+    }
+
+    // Real Supabase session handling
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       if (session?.user) {
@@ -43,18 +59,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     })
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session)
-      if (session?.user) {
-        await fetchUserProfile(session.user.id)
-      } else {
-        setUser(null)
-        setLoading(false)
-      }
-    })
+    // Listen for auth changes (only in real Supabase mode)
+    if (!isDemoMode) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        setSession(session)
+        if (session?.user) {
+          await fetchUserProfile(session.user.id)
+        } else {
+          setUser(null)
+          setLoading(false)
+        }
+      })
 
-    return () => subscription.unsubscribe()
+      return () => subscription.unsubscribe()
+    }
   }, [supabase])
 
   const fetchUserProfile = async (userId: string) => {
@@ -88,6 +106,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const signUp = async (email: string, password: string, fullName: string, role: 'teacher' | 'student') => {
+    // Check if we're in demo mode
+    const isDemoMode = supabase.supabaseUrl.includes('demo')
+
+    if (isDemoMode) {
+      // Demo mode sign up - just create a mock user
+      const mockUser: User = {
+        id: `demo-${role}-${Date.now()}`,
+        email,
+        role,
+        full_name: fullName,
+        created_at: new Date().toISOString(),
+        credits: role === 'student' ? 0 : undefined
+      }
+
+      setUser(mockUser)
+      setSession({
+        access_token: 'demo-token',
+        refresh_token: 'demo-refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: mockUser as any
+      } as Session)
+
+      // Store in localStorage for persistence
+      localStorage.setItem('demo_user', JSON.stringify(mockUser))
+      localStorage.setItem('demo_session', JSON.stringify({ user: mockUser }))
+
+      return
+    }
+
+    // Real Supabase sign up
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -111,6 +160,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const signIn = async (email: string, password: string) => {
+    // Check if we're in demo mode
+    const isDemoMode = supabase.supabaseUrl.includes('demo')
+
+    if (isDemoMode) {
+      // Demo mode authentication
+      const demoUsers = [
+        { email: 'teacher@demo.com', password: 'password', role: 'teacher', name: 'Demo Teacher' },
+        { email: 'student@demo.com', password: 'password', role: 'student', name: 'Demo Student' }
+      ]
+
+      const demoUser = demoUsers.find(u => u.email === email && u.password === password)
+      if (!demoUser) {
+        throw new Error('Invalid email or password')
+      }
+
+      // Create mock user session
+      const mockUser: User = {
+        id: `demo-${demoUser.role}-${Date.now()}`,
+        email: demoUser.email,
+        role: demoUser.role as 'teacher' | 'student',
+        full_name: demoUser.name,
+        created_at: new Date().toISOString(),
+        credits: demoUser.role === 'student' ? 100 : undefined
+      }
+
+      setUser(mockUser)
+      setSession({
+        access_token: 'demo-token',
+        refresh_token: 'demo-refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: mockUser as any
+      } as Session)
+
+      // Store in localStorage for persistence
+      localStorage.setItem('demo_user', JSON.stringify(mockUser))
+      localStorage.setItem('demo_session', JSON.stringify({ user: mockUser }))
+
+      return
+    }
+
+    // Real Supabase authentication
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -120,6 +211,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const signOut = async () => {
+    // Check if we're in demo mode
+    const isDemoMode = supabase.supabaseUrl.includes('demo')
+
+    if (isDemoMode) {
+      // Demo mode sign out
+      setUser(null)
+      setSession(null)
+      localStorage.removeItem('demo_user')
+      localStorage.removeItem('demo_session')
+      return
+    }
+
+    // Real Supabase sign out
     const { error } = await supabase.auth.signOut()
     if (error) throw error
     setUser(null)
