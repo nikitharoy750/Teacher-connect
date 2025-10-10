@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { LogOut, BookOpen, Users, Video, Award } from 'lucide-react'
+import { LogOut, BookOpen, Users, Video, Award, Volume2 } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -37,6 +37,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <Video className="h-5 w-5" />
                     <span className="font-medium">Videos</span>
                   </Link>
+
+                  {user.role === 'student' && (
+                    <Link to="/audio" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                      <Volume2 className="h-5 w-5" />
+                      <span className="font-medium">Audio</span>
+                    </Link>
+                  )}
 
                   {user.role === 'teacher' ? (
                     <Link to="/teacher-dashboard" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">

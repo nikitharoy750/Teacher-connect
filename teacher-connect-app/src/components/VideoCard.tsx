@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Play, Clock, Eye, ThumbsUp, BookOpen, Download, Heart, Share2, MoreVertical } from 'lucide-react'
+import { Play, Clock, Eye, ThumbsUp, BookOpen, Download, Heart, Share2, MoreVertical, Volume2 } from 'lucide-react'
+import AudioConversionModal from './AudioConversionModal'
 
 interface Video {
   id: string
@@ -26,6 +27,7 @@ interface VideoCardProps {
   onLike: (videoId: string) => void
   onDownload: (videoId: string) => void
   onAddToFavorites: (videoId: string) => void
+  onConvertToAudio?: (videoId: string) => void
   isLiked?: boolean
   isFavorited?: boolean
   layout?: 'grid' | 'list'
@@ -37,12 +39,14 @@ const VideoCard: React.FC<VideoCardProps> = ({
   onLike,
   onDownload,
   onAddToFavorites,
+  onConvertToAudio,
   isLiked = false,
   isFavorited = false,
   layout = 'grid'
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [showAudioConversion, setShowAudioConversion] = useState(false)
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -127,6 +131,16 @@ const VideoCard: React.FC<VideoCardProps> = ({
                     >
                       <Heart className={`h-4 w-4 ${isFavorited ? 'text-red-500 fill-current' : 'text-gray-500'}`} />
                       <span>{isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAudioConversion(true)
+                        setShowMenu(false)
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center space-x-2"
+                    >
+                      <Volume2 className="h-4 w-4 text-gray-500" />
+                      <span>Convert to Audio</span>
                     </button>
                     <button
                       onClick={() => {
@@ -277,6 +291,27 @@ const VideoCard: React.FC<VideoCardProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Audio Conversion Modal */}
+      {showAudioConversion && (
+        <AudioConversionModal
+          video={{
+            id: video.id,
+            title: video.title,
+            description: video.description,
+            videoUrl: `https://demo-storage.supabase.co/videos/${video.id}.mp4`,
+            thumbnailUrl: video.thumbnail,
+            teacher: video.teacher,
+            subject: video.subject,
+            gradeLevel: video.gradeLevel,
+            duration: video.duration,
+            views: video.views,
+            likes: video.likes,
+            uploadDate: video.uploadDate
+          }}
+          onClose={() => setShowAudioConversion(false)}
+        />
+      )}
     </div>
   )
 }

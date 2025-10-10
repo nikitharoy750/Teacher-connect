@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import TeacherDashboard from './pages/TeacherDashboard'
 import StudentDashboard from './pages/StudentDashboard'
 import VideoLibrary from './pages/VideoLibrary'
+import AudioLibrary from './pages/AudioLibrary'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -35,13 +36,21 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
-              <Route 
-                path="/videos" 
+              <Route
+                path="/videos"
                 element={
                   <ProtectedRoute>
                     <VideoLibrary />
                   </ProtectedRoute>
-                } 
+                }
+              />
+              <Route
+                path="/audio"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <AudioLibrary />
+                  </ProtectedRoute>
+                }
               />
             </Routes>
           </Layout>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Play, BookOpen, Download, Heart, TrendingUp, Clock, Star, Volume2, Search, Filter, Award, Target, Users } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { Link } from 'react-router-dom'
 import VideoCard from '../components/VideoCard'
 import VideoPlayer from '../components/VideoPlayer'
 
@@ -238,13 +239,13 @@ const StudentDashboard: React.FC = () => {
             </div>
           </button>
 
-          <button className="flex items-center space-x-3 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+          <Link to="/audio" className="flex items-center space-x-3 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
             <Volume2 className="h-6 w-6 text-green-600" />
             <div className="text-left">
-              <div className="font-semibold text-gray-900">Audio Mode</div>
-              <div className="text-sm text-gray-600">Convert videos to audio</div>
+              <div className="font-semibold text-gray-900">Audio Library</div>
+              <div className="text-sm text-gray-600">Manage your audio files</div>
             </div>
-          </button>
+          </Link>
 
           <button className="flex items-center space-x-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
             <Download className="h-6 w-6 text-purple-600" />

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, SkipBack, SkipForward, Settings, Download, Heart, Share2, BookOpen } from 'lucide-react'
+import AudioConversionModal from './AudioConversionModal'
 
 interface Video {
   id: string
@@ -46,6 +47,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [playbackRate, setPlaybackRate] = useState(1)
   const [showSettings, setShowSettings] = useState(false)
+  const [showAudioConversion, setShowAudioConversion] = useState(false)
 
   useEffect(() => {
     const video = videoRef.current
@@ -180,7 +182,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
           </button>
           <button
-            onClick={() => onConvertToAudio(video.id)}
+            onClick={() => setShowAudioConversion(true)}
             className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
             title="Convert to Audio"
           >
@@ -327,6 +329,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Audio Conversion Modal */}
+      {showAudioConversion && (
+        <AudioConversionModal
+          video={video}
+          onClose={() => setShowAudioConversion(false)}
+        />
+      )}
     </div>
   )
 }
