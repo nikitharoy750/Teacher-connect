@@ -1,229 +1,347 @@
-import React, { useState } from 'react'
-import { Play, Award, BookOpen, MessageCircle, Upload, Download, Trophy } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Play, BookOpen, Download, Heart, TrendingUp, Clock, Star, Volume2, Search, Filter, Award, Target, Users } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
+import VideoCard from '../components/VideoCard'
+import VideoPlayer from '../components/VideoPlayer'
 
 const StudentDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview')
-  const [doubtInput, setDoubtInput] = useState('')
-  const [aiResponse, setAiResponse] = useState('')
+  const { user } = useAuth()
+  const [recentVideos, setRecentVideos] = useState<any[]>([])
+  const [recommendedVideos, setRecommendedVideos] = useState<any[]>([])
+  const [favoriteVideos, setFavoriteVideos] = useState<any[]>([])
+  const [selectedVideo, setSelectedVideo] = useState<any>(null)
+  const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set())
+  const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(true)
 
-  const stats = {
-    videosWatched: 45,
-    creditsEarned: 120,
-    testsCompleted: 8,
-    rank: 15,
-    totalStudents: 500
+  useEffect(() => {
+    const loadStudentData = async () => {
+      try {
+        setLoading(true)
+
+        // Load videos from localStorage (demo mode)
+        const allVideos = JSON.parse(localStorage.getItem('demo_videos') || '[]')
+
+        // Get recent videos (last 3)
+        const recent = allVideos.slice(0, 3)
+        setRecentVideos(recent)
+
+        // Get recommended videos based on popular subjects
+        const recommended = allVideos
+          .filter((v: any) => ['Mathematics', 'Physics', 'Chemistry'].includes(v.subject))
+          .slice(0, 4)
+        setRecommendedVideos(recommended)
+
+        // Load user's favorites from localStorage
+        const userFavorites = JSON.parse(localStorage.getItem(`favorites_${user?.id}`) || '[]')
+        const favoriteVideosList = allVideos.filter((v: any) => userFavorites.includes(v.id))
+        setFavoriteVideos(favoriteVideosList)
+        setFavorites(new Set(userFavorites))
+
+        // Load user's likes
+        const userLikes = JSON.parse(localStorage.getItem(`likes_${user?.id}`) || '[]')
+        setLikedVideos(new Set(userLikes))
+
+      } catch (error) {
+        console.error('Failed to load student data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (user) {
+      loadStudentData()
+    }
+  }, [user])
+
+  const convertToVideoCardFormat = (video: any) => ({
+    id: video.id,
+    title: video.title,
+    description: video.description,
+    subject: video.subject,
+    gradeLevel: video.grade_level,
+    thumbnail: video.thumbnail_url || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop',
+    duration: `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}`,
+    uploadDate: video.upload_date,
+    views: video.views || 0,
+    likes: video.upvotes || 0,
+    teacher: {
+      name: getTeacherName(video.teacher_id),
+      avatar: getTeacherAvatar(video.teacher_id),
+      rating: 4.8
+    },
+    tags: [video.subject, video.grade_level]
+  })
+
+  const convertToVideoPlayerFormat = (video: any) => ({
+    id: video.id,
+    title: video.title,
+    description: video.description,
+    videoUrl: video.file_url,
+    thumbnailUrl: video.thumbnail_url,
+    teacher: {
+      name: getTeacherName(video.teacher_id),
+      avatar: getTeacherAvatar(video.teacher_id)
+    },
+    subject: video.subject,
+    gradeLevel: video.grade_level,
+    duration: `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}`,
+    views: video.views || 0,
+    likes: video.upvotes || 0,
+    uploadDate: video.upload_date
+  })
+
+  const getTeacherName = (teacherId: string) => {
+    const teacherNames: { [key: string]: string } = {
+      'demo-teacher': 'Ms. Sharma',
+      'demo-teacher-2': 'Mr. Patel',
+      'demo-teacher-3': 'Ms. Kumar',
+      'demo-teacher-4': 'Dr. Singh',
+      'demo-teacher-5': 'Prof. Gupta',
+      'demo-teacher-6': 'Dr. Reddy'
+    }
+    return teacherNames[teacherId] || 'Unknown Teacher'
   }
 
-  const recentVideos = [
-    { id: 1, title: 'Quadratic Equations', teacher: 'Ms. Sharma', duration: '15:30', subject: 'Mathematics' },
-    { id: 2, title: 'Cell Division', teacher: 'Mr. Patel', duration: '12:45', subject: 'Biology' },
-    { id: 3, title: 'Essay Writing', teacher: 'Ms. Kumar', duration: '18:20', subject: 'English' }
-  ]
+  const getTeacherAvatar = (teacherId: string) => {
+    const avatars: { [key: string]: string } = {
+      'demo-teacher': 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=100&h=100&fit=crop&crop=face',
+      'demo-teacher-2': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+      'demo-teacher-3': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
+      'demo-teacher-4': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+      'demo-teacher-5': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
+      'demo-teacher-6': 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100&h=100&fit=crop&crop=face'
+    }
+    return avatars[teacherId] || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'
+  }
 
-  const leaderboard = [
-    { rank: 1, name: 'Priya Singh', credits: 450, avatar: '👩‍🎓' },
-    { rank: 2, name: 'Rahul Verma', credits: 420, avatar: '👨‍🎓' },
-    { rank: 3, name: 'Anita Devi', credits: 380, avatar: '👩‍🎓' },
-    { rank: 4, name: 'Vikash Kumar', credits: 350, avatar: '👨‍🎓' },
-    { rank: 5, name: 'You', credits: 120, avatar: '🎯' }
-  ]
+  const handleVideoPlay = (video: any) => {
+    setSelectedVideo(convertToVideoPlayerFormat(video))
+  }
 
-  const handleDoubtSubmit = () => {
-    if (!doubtInput.trim()) return
-    
-    // Simulate AI response
-    setTimeout(() => {
-      if (doubtInput.toLowerCase().includes('photosynthesis')) {
-        setAiResponse('Photosynthesis is the process by which plants convert light energy into chemical energy. It occurs in chloroplasts and involves two main stages: light-dependent reactions and the Calvin cycle.')
-      } else if (doubtInput.toLowerCase().includes('algebra')) {
-        setAiResponse('Algebra is a branch of mathematics that uses symbols and letters to represent numbers and quantities in formulas and equations. It helps solve problems by finding unknown values.')
-      } else {
-        setAiResponse('I understand your question. Let me help you with that. For more detailed explanations, you can check our video library or ask your teachers directly.')
-      }
-    }, 1000)
+  const handleLike = (videoId: string) => {
+    const newLikedVideos = new Set(likedVideos)
+    if (newLikedVideos.has(videoId)) {
+      newLikedVideos.delete(videoId)
+    } else {
+      newLikedVideos.add(videoId)
+    }
+    setLikedVideos(newLikedVideos)
+
+    // Save to localStorage
+    localStorage.setItem(`likes_${user?.id}`, JSON.stringify(Array.from(newLikedVideos)))
+  }
+
+  const handleAddToFavorites = (videoId: string) => {
+    const newFavorites = new Set(favorites)
+    if (newFavorites.has(videoId)) {
+      newFavorites.delete(videoId)
+    } else {
+      newFavorites.add(videoId)
+    }
+    setFavorites(newFavorites)
+
+    // Save to localStorage
+    localStorage.setItem(`favorites_${user?.id}`, JSON.stringify(Array.from(newFavorites)))
+  }
+
+  const handleDownload = (videoId: string) => {
+    console.log('Download video:', videoId)
+    // Implement download functionality
+  }
+
+  const handleConvertToAudio = (videoId: string) => {
+    console.log('Convert to audio:', videoId)
+    // Implement video-to-audio conversion
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-800">Student Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg font-semibold">
-            {stats.creditsEarned} Credits
+      {/* Welcome Header */}
+      <div className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold font-heading mb-2">
+              Welcome back, {user?.full_name || 'Student'}! 👋
+            </h1>
+            <p className="text-primary-light text-lg">
+              Continue your learning journey with amazing educational content
+            </p>
           </div>
-          <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg font-semibold">
-            Rank #{stats.rank}
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Videos Watched</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.videosWatched}</p>
-            </div>
-            <Play className="h-8 w-8 text-blue-600" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Credits Earned</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.creditsEarned}</p>
-            </div>
-            <Award className="h-8 w-8 text-yellow-600" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Tests Completed</p>
-              <p className="text-2xl font-bold text-green-600">{stats.testsCompleted}</p>
-            </div>
-            <BookOpen className="h-8 w-8 text-green-600" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Your Rank</p>
-              <p className="text-2xl font-bold text-purple-600">#{stats.rank}</p>
-            </div>
-            <Trophy className="h-8 w-8 text-purple-600" />
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: 'overview', name: 'Overview', icon: BookOpen },
-            { id: 'videos', name: 'Continue Learning', icon: Play },
-            { id: 'doubts', name: 'Ask AI', icon: MessageCircle },
-            { id: 'upload', name: 'Upload & Earn', icon: Upload },
-            { id: 'leaderboard', name: 'Leaderboard', icon: Trophy }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <tab.icon className="h-5 w-5" />
-              <span>{tab.name}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Tab Content */}
-      <div className="mt-8">
-        {activeTab === 'overview' && (
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Continue Watching</h3>
-              <div className="space-y-4">
-                {recentVideos.map((video) => (
-                  <div key={video.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                    <div className="bg-blue-100 p-3 rounded-lg">
-                      <Play className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium">{video.title}</h4>
-                      <p className="text-sm text-gray-600">{video.teacher} • {video.subject}</p>
-                      <p className="text-xs text-gray-500">{video.duration}</p>
-                    </div>
-                  </div>
-                ))}
+          <div className="text-right">
+            <div className="bg-white bg-opacity-20 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <Award className="h-5 w-5" />
+                <span className="font-semibold">Credits</span>
               </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                <button className="w-full flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <Download className="h-6 w-6 text-green-600" />
-                  <span>Download Videos for Offline</span>
-                </button>
-                <button className="w-full flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <BookOpen className="h-6 w-6 text-blue-600" />
-                  <span>Take a Practice Test</span>
-                </button>
-                <button className="w-full flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <Upload className="h-6 w-6 text-purple-600" />
-                  <span>Upload Educational Content</span>
-                </button>
-              </div>
+              <div className="text-2xl font-bold">{user?.credits || 100}</div>
             </div>
           </div>
-        )}
-
-        {activeTab === 'doubts' && (
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-semibold mb-4">AI Doubt Resolution</h3>
-            <div className="space-y-4">
-              <div className="flex space-x-4">
-                <input
-                  type="text"
-                  value={doubtInput}
-                  onChange={(e) => setDoubtInput(e.target.value)}
-                  placeholder="Ask your question here..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  onKeyPress={(e) => e.key === 'Enter' && handleDoubtSubmit()}
-                />
-                <button
-                  onClick={handleDoubtSubmit}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-                >
-                  Ask AI
-                </button>
-              </div>
-              {aiResponse && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-blue-800">{aiResponse}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'leaderboard' && (
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-semibold mb-4">Student Leaderboard</h3>
-            <div className="space-y-3">
-              {leaderboard.map((student) => (
-                <div
-                  key={student.rank}
-                  className={`flex items-center justify-between p-4 rounded-lg ${
-                    student.name === 'You' ? 'bg-yellow-50 border-2 border-yellow-200' : 'bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="text-2xl">{student.avatar}</div>
-                    <div>
-                      <p className="font-medium">{student.name}</p>
-                      <p className="text-sm text-gray-600">Rank #{student.rank}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-yellow-600">{student.credits} credits</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="card p-6 text-center">
+          <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <Play className="h-6 w-6 text-blue-600" />
+          </div>
+          <h3 className="font-semibold text-gray-900 mb-1">Videos Watched</h3>
+          <p className="text-2xl font-bold text-blue-600">24</p>
+        </div>
+
+        <div className="card p-6 text-center">
+          <div className="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <Heart className="h-6 w-6 text-green-600" />
+          </div>
+          <h3 className="font-semibold text-gray-900 mb-1">Favorites</h3>
+          <p className="text-2xl font-bold text-green-600">{favoriteVideos.length}</p>
+        </div>
+
+        <div className="card p-6 text-center">
+          <div className="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <Target className="h-6 w-6 text-purple-600" />
+          </div>
+          <h3 className="font-semibold text-gray-900 mb-1">Learning Streak</h3>
+          <p className="text-2xl font-bold text-purple-600">7 days</p>
+        </div>
+
+        <div className="card p-6 text-center">
+          <div className="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <BookOpen className="h-6 w-6 text-orange-600" />
+          </div>
+          <h3 className="font-semibold text-gray-900 mb-1">Subjects</h3>
+          <p className="text-2xl font-bold text-orange-600">6</p>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="card p-6">
+        <h2 className="text-xl font-bold font-heading text-gray-900 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button className="flex items-center space-x-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+            <Search className="h-6 w-6 text-blue-600" />
+            <div className="text-left">
+              <div className="font-semibold text-gray-900">Browse Videos</div>
+              <div className="text-sm text-gray-600">Explore all available content</div>
+            </div>
+          </button>
+
+          <button className="flex items-center space-x-3 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+            <Volume2 className="h-6 w-6 text-green-600" />
+            <div className="text-left">
+              <div className="font-semibold text-gray-900">Audio Mode</div>
+              <div className="text-sm text-gray-600">Convert videos to audio</div>
+            </div>
+          </button>
+
+          <button className="flex items-center space-x-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+            <Download className="h-6 w-6 text-purple-600" />
+            <div className="text-left">
+              <div className="font-semibold text-gray-900">Offline Content</div>
+              <div className="text-sm text-gray-600">Download for offline viewing</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Continue Watching */}
+      {recentVideos.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold font-heading text-gray-900">Continue Watching</h2>
+            <button className="text-primary hover:text-primary-dark font-medium">View All</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {recentVideos.map(video => (
+              <VideoCard
+                key={video.id}
+                video={convertToVideoCardFormat(video)}
+                onPlay={() => handleVideoPlay(video)}
+                onLike={handleLike}
+                onDownload={handleDownload}
+                onAddToFavorites={handleAddToFavorites}
+                isLiked={likedVideos.has(video.id)}
+                isFavorited={favorites.has(video.id)}
+                layout="grid"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recommended for You */}
+      {recommendedVideos.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold font-heading text-gray-900">Recommended for You</h2>
+            <button className="text-primary hover:text-primary-dark font-medium">View All</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {recommendedVideos.map(video => (
+              <VideoCard
+                key={video.id}
+                video={convertToVideoCardFormat(video)}
+                onPlay={() => handleVideoPlay(video)}
+                onLike={handleLike}
+                onDownload={handleDownload}
+                onAddToFavorites={handleAddToFavorites}
+                isLiked={likedVideos.has(video.id)}
+                isFavorited={favorites.has(video.id)}
+                layout="grid"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Your Favorites */}
+      {favoriteVideos.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold font-heading text-gray-900">Your Favorites</h2>
+            <button className="text-primary hover:text-primary-dark font-medium">View All</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {favoriteVideos.slice(0, 3).map(video => (
+              <VideoCard
+                key={video.id}
+                video={convertToVideoCardFormat(video)}
+                onPlay={() => handleVideoPlay(video)}
+                onLike={handleLike}
+                onDownload={handleDownload}
+                onAddToFavorites={handleAddToFavorites}
+                isLiked={likedVideos.has(video.id)}
+                isFavorited={favorites.has(video.id)}
+                layout="grid"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Video Player Modal */}
+      {selectedVideo && (
+        <VideoPlayer
+          video={selectedVideo}
+          onClose={() => setSelectedVideo(null)}
+          onLike={handleLike}
+          onDownload={handleDownload}
+          onConvertToAudio={handleConvertToAudio}
+          isLiked={likedVideos.has(selectedVideo.id)}
+        />
+      )}
     </div>
   )
 }
