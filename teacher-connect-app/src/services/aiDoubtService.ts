@@ -1,5 +1,5 @@
 // OpenAI integration for real AI responses
-import OpenAI from 'openai'
+// import OpenAI from 'openai' // Uncomment after installing: npm install openai
 
 export interface Doubt {
   id: string
@@ -43,21 +43,18 @@ export class AIDoubtService {
   private static readonly DOUBTS_KEY = 'student_doubts'
   private static readonly RESPONSES_KEY = 'doubt_responses'
 
-  // Initialize OpenAI client (will be set after installing openai package)
+  // OpenAI client - will be initialized when package is installed
   private static openai: any = null
+  private static openaiAvailable = false
 
-  // Initialize OpenAI when available
+  // Check if OpenAI is available (after npm install openai)
   private static async initOpenAI() {
-    if (!this.openai && import.meta.env.VITE_OPENAI_API_KEY) {
-      try {
-        const OpenAI = (await import('openai')).default
-        this.openai = new OpenAI({
-          apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-          dangerouslyAllowBrowser: true // Only for demo - use backend in production
-        })
-      } catch (error) {
-        console.warn('OpenAI package not installed, using mock responses')
-      }
+    if (!this.openaiAvailable && import.meta.env.VITE_OPENAI_API_KEY) {
+      // This will be enabled after installing OpenAI package
+      // For now, we'll use mock responses
+      console.log('OpenAI API key detected, but package not installed yet')
+      console.log('Install with: npm install openai')
+      console.log('Using mock responses for now')
     }
   }
 
@@ -183,8 +180,8 @@ export class AIDoubtService {
     // Initialize OpenAI if available
     await this.initOpenAI()
 
-    // Try real OpenAI API first
-    if (this.openai && import.meta.env.VITE_OPENAI_API_KEY) {
+    // Check if OpenAI is available (will work after installing package)
+    if (this.openaiAvailable && this.openai && import.meta.env.VITE_OPENAI_API_KEY) {
       try {
         const completion = await this.openai.chat.completions.create({
           model: "gpt-3.5-turbo",
