@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { X, Upload, FileVideo, AlertCircle, CheckCircle, Award, Info, Star } from 'lucide-react'
 import { studentUploadService } from '../services/studentUploadService'
-import type { UploadGuidelines } from '../services/studentUploadService'
+// import type { UploadGuidelines } from '../services/studentUploadService'
 
 interface StudentUploadModalProps {
   studentId: string
@@ -98,6 +98,10 @@ const StudentUploadModal: React.FC<StudentUploadModalProps> = ({
           description: formData.description.trim(),
           subject: formData.subject,
           gradeLevel: formData.gradeLevel,
+          videoUrl: URL.createObjectURL(selectedFile),
+          thumbnailUrl: '/placeholder-thumbnail.jpg',
+          duration: '00:00',
+          fileSize: selectedFile.size,
           tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
         },
         selectedFile,

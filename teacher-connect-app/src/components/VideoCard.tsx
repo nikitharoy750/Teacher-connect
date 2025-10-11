@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
-import { Play, ThumbsUp, Download, Heart, Share2, MoreVertical, Volume2 } from 'lucide-react'
+import { Play, ThumbsUp, Download, Heart, Share2, MoreVertical, Volume2, WifiOff, Sparkles, Star } from 'lucide-react'
 import AudioConversionModal from './AudioConversionModal'
+import ContentSummary from './ContentSummary'
+import TeacherRating from './TeacherRating'
+import { OfflineService } from '../services/offlineService'
+import { useAuth } from '../contexts/AuthContext'
 
 interface Video {
   id: string
@@ -44,9 +48,13 @@ const VideoCard: React.FC<VideoCardProps> = ({
   isFavorited = false,
   layout = 'grid'
 }) => {
+  const { user } = useAuth()
   const [imageLoaded, setImageLoaded] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [showRating, setShowRating] = useState(false)
   const [showAudioConversion, setShowAudioConversion] = useState(false)
+  const [showSummary, setShowSummary] = useState(false)
+  const [isDownloadingOffline, setIsDownloadingOffline] = useState(false)
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -65,6 +73,30 @@ const VideoCard: React.FC<VideoCardProps> = ({
     if (views < 1000000) return `${(views / 1000).toFixed(1)}K`
     return `${(views / 1000000).toFixed(1)}M`
   }
+
+  const handleDownloadOffline = async () => {
+    setIsDownloadingOffline(true)
+    try {
+      // Convert video object to match expected format
+      const videoForOffline = {
+        id: video.id,
+        title: video.title,
+        description: video.description,
+        file_url: `https://example.com/videos/${video.id}.mp4`, // Mock URL
+        duration: parseInt(video.duration.split(':')[0]) * 60 + parseInt(video.duration.split(':')[1])
+      }
+
+      await OfflineService.downloadForOffline(videoForOffline as any, 'video')
+      alert('Video downloaded for offline access!')
+    } catch (error) {
+      console.error('Error downloading for offline:', error)
+      alert('Failed to download video. Please try again.')
+    } finally {
+      setIsDownloadingOffline(false)
+    }
+  }
+
+  const isOfflineAvailable = OfflineService.isContentOffline(video.id)
 
   if (layout === 'list') {
     return (
@@ -152,6 +184,18 @@ const VideoCard: React.FC<VideoCardProps> = ({
                       <Download className="h-4 w-4 text-gray-500" />
                       <span>Download</span>
                     </button>
+                    {user?.role === 'student' && (
+                      <button
+                        onClick={() => {
+                          setShowRating(true)
+                          setShowMenu(false)
+                        }}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center space-x-2"
+                      >
+                        <Star className="h-4 w-4 text-gray-500" />
+                        <span>Rate Teacher</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => setShowMenu(false)}
                       className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center space-x-2"
@@ -189,18 +233,56 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 <button
                   onClick={() => onLike(video.id)}
                   className={`flex items-center space-x-1 px-3 py-1 rounded-lg transition-colors ${
-                    isLiked 
-                      ? 'bg-primary text-white' 
+                    isLiked
+                      ? 'bg-primary text-white'
                       : 'hover:bg-gray-100 text-gray-600'
                   }`}
                 >
                   <ThumbsUp className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
                   <span className="text-sm font-medium">{video.likes}</span>
                 </button>
+
+                <button
+                  onClick={() => setShowSummary(!showSummary)}
+                  className="flex items-center space-x-1 px-3 py-1 rounded-lg transition-colors hover:bg-purple-50 text-purple-600"
+                  title="View AI Summary"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span className="text-sm font-medium">Summary</span>
+                </button>
+
+                <button
+                  onClick={handleDownloadOffline}
+                  disabled={isDownloadingOffline || isOfflineAvailable}
+                  className={`flex items-center space-x-1 px-3 py-1 rounded-lg transition-colors ${
+                    isOfflineAvailable
+                      ? 'bg-green-100 text-green-600 cursor-default'
+                      : 'hover:bg-blue-50 text-blue-600'
+                  }`}
+                  title={isOfflineAvailable ? 'Available offline' : 'Download for offline access'}
+                >
+                  <WifiOff className="h-4 w-4" />
+                  <span className="text-sm font-medium">
+                    {isDownloadingOffline ? 'Downloading...' : isOfflineAvailable ? 'Offline' : 'Download'}
+                  </span>
+                </button>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Summary Component */}
+        {showSummary && (
+          <div className="p-4 border-t border-gray-100">
+            <ContentSummary
+              contentId={video.id}
+              contentTitle={video.title}
+              contentType="video"
+              showDownloadOption={true}
+              onDownload={handleDownloadOffline}
+            />
+          </div>
+        )}
       </div>
     )
   }
@@ -272,17 +354,17 @@ const VideoCard: React.FC<VideoCardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-1">
             <span className="badge badge-primary text-xs">{video.subject}</span>
             <span className="badge badge-secondary text-xs">{video.gradeLevel}</span>
           </div>
-          
+
           <button
             onClick={() => onLike(video.id)}
             className={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${
-              isLiked 
-                ? 'bg-primary text-white' 
+              isLiked
+                ? 'bg-primary text-white'
                 : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
@@ -290,6 +372,47 @@ const VideoCard: React.FC<VideoCardProps> = ({
             <span className="text-xs font-medium">{video.likes}</span>
           </button>
         </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between space-x-2">
+          <button
+            onClick={() => setShowSummary(!showSummary)}
+            className="flex items-center space-x-1 px-2 py-1 rounded transition-colors hover:bg-purple-50 text-purple-600 text-xs"
+            title="View AI Summary"
+          >
+            <Sparkles className="h-3 w-3" />
+            <span>Summary</span>
+          </button>
+
+          <button
+            onClick={handleDownloadOffline}
+            disabled={isDownloadingOffline || isOfflineAvailable}
+            className={`flex items-center space-x-1 px-2 py-1 rounded transition-colors text-xs ${
+              isOfflineAvailable
+                ? 'bg-green-100 text-green-600 cursor-default'
+                : 'hover:bg-blue-50 text-blue-600'
+            }`}
+            title={isOfflineAvailable ? 'Available offline' : 'Download for offline access'}
+          >
+            <WifiOff className="h-3 w-3" />
+            <span>
+              {isDownloadingOffline ? 'Downloading...' : isOfflineAvailable ? 'Offline' : 'Download'}
+            </span>
+          </button>
+        </div>
+
+        {/* Summary Component */}
+        {showSummary && (
+          <div className="px-4 pb-4">
+            <ContentSummary
+              contentId={video.id}
+              contentTitle={video.title}
+              contentType="video"
+              showDownloadOption={true}
+              onDownload={handleDownloadOffline}
+            />
+          </div>
+        )}
       </div>
 
       {/* Audio Conversion Modal */}
@@ -310,6 +433,20 @@ const VideoCard: React.FC<VideoCardProps> = ({
             uploadDate: video.uploadDate
           }}
           onClose={() => setShowAudioConversion(false)}
+        />
+      )}
+
+      {showRating && (
+        <TeacherRating
+          teacherId={`teacher-${video.id}`} // Mock teacher ID
+          teacherName={video.teacher.name}
+          contentId={video.id}
+          contentType="video"
+          contentTitle={video.title}
+          onRatingSubmitted={() => {
+            // Could refresh video data or show success message
+          }}
+          onClose={() => setShowRating(false)}
         />
       )}
     </div>

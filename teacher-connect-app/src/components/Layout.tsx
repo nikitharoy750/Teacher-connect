@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { LogOut, BookOpen, Users, Video, Award, Volume2, Upload, Shield, Coins, FileText } from 'lucide-react'
+import { LogOut, BookOpen, Users, Video, Award, Volume2, Upload, Shield, Coins, FileText, Library, WifiOff, Bot, Trophy } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -37,6 +37,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <Video className="h-5 w-5" />
                     <span className="font-medium">Videos</span>
                   </Link>
+                  <Link to="/notes" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                    <Library className="h-5 w-5" />
+                    <span className="font-medium">Notes</span>
+                  </Link>
+                  <Link to="/offline" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                    <WifiOff className="h-5 w-5" />
+                    <span className="font-medium">Offline</span>
+                  </Link>
+                  <Link to="/community" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                    <Trophy className="h-5 w-5" />
+                    <span className="font-medium">Community</span>
+                  </Link>
 
                   {user.role === 'student' && (
                     <>
@@ -55,6 +67,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <Link to="/assessments" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
                         <FileText className="h-5 w-5" />
                         <span className="font-medium">Assessments</span>
+                      </Link>
+                      <Link to="/ai-doubts" className="nav-link text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                        <Bot className="h-5 w-5" />
+                        <span className="font-medium">AI Help</span>
                       </Link>
                     </>
                   )}

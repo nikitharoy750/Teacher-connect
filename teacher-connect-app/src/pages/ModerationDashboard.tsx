@@ -5,7 +5,7 @@ import { studentUploadService } from '../services/studentUploadService'
 import type { StudentUpload } from '../services/studentUploadService'
 
 const ModerationDashboard: React.FC = () => {
-  const { user } = useAuth()
+  const { user: _user } = useAuth()
   const [uploads, setUploads] = useState<StudentUpload[]>([])
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'under_review' | 'approved' | 'rejected'>('pending')
   const [searchTerm, setSearchTerm] = useState('')

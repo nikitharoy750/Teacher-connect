@@ -108,7 +108,7 @@ class StudentUploadService {
   ): Promise<StudentUpload> {
     return new Promise((resolve) => {
       let progress = 0
-      const totalSteps = 100
+      // const totalSteps = 100
       const stepSize = 5
 
       const simulateStep = () => {

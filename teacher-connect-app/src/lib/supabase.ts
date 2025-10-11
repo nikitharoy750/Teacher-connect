@@ -45,6 +45,33 @@ export interface Test {
   time_limit: number
 }
 
+export interface Note {
+  id: string
+  title: string
+  description: string
+  file_url: string
+  file_type: string
+  file_size: number
+  teacher_id: string
+  subject: string
+  grade_level: string
+  upload_date: string
+  downloads: number
+  tags: string[]
+}
+
+export interface Module {
+  id: string
+  title: string
+  description: string
+  notes: Note[]
+  teacher_id: string
+  subject: string
+  grade_level: string
+  created_at: string
+  is_published: boolean
+}
+
 export interface Question {
   id: string
   question: string

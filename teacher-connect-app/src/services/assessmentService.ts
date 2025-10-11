@@ -322,7 +322,11 @@ class AssessmentService {
     ]
 
     sampleAssessments.forEach(assessmentData => {
-      this.createAssessment(assessmentData)
+      const totalPoints = assessmentData.questions.reduce((sum, q) => sum + q.points, 0)
+      this.createAssessment({
+        ...assessmentData,
+        totalPoints
+      })
     })
   }
 

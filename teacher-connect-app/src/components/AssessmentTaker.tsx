@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Clock, AlertCircle, CheckCircle, Award, ArrowLeft, ArrowRight, Flag } from 'lucide-react'
+import { Clock, AlertCircle, CheckCircle, ArrowLeft, ArrowRight, Flag } from 'lucide-react'
 import { assessmentService } from '../services/assessmentService'
 import type { Assessment, StudentAnswer, AssessmentAttempt } from '../services/assessmentService'
 
@@ -26,7 +26,7 @@ const AssessmentTaker: React.FC<AssessmentTakerProps> = ({
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false)
   const [questionStartTime, setQuestionStartTime] = useState(Date.now())
   
-  const timerRef = useRef<NodeJS.Timeout>()
+  const timerRef = useRef<number | null>(null)
   const currentQuestion = assessment.questions[currentQuestionIndex]
 
   useEffect(() => {
@@ -72,7 +72,7 @@ const AssessmentTaker: React.FC<AssessmentTakerProps> = ({
     }
   }
 
-  const handleSubmit = async (autoSubmit = false) => {
+  const handleSubmit = async (_autoSubmit = false) => {
     if (!attempt) return
 
     setIsSubmitting(true)

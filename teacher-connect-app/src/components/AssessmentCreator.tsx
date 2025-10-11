@@ -23,7 +23,7 @@ const AssessmentCreator: React.FC<AssessmentCreatorProps> = ({
     subject: '',
     gradeLevel: '',
     duration: 30,
-    difficulty: 'medium' as const,
+    difficulty: 'medium' as 'easy' | 'medium' | 'hard',
     tags: '',
     instructions: '',
     isPublished: false
@@ -64,9 +64,11 @@ const AssessmentCreator: React.FC<AssessmentCreatorProps> = ({
       difficulty: currentQuestion.difficulty || 'medium',
       subject: assessmentData.subject,
       gradeLevel: assessmentData.gradeLevel,
-      tags: typeof currentQuestion.tags === 'string' 
-        ? currentQuestion.tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
-        : currentQuestion.tags || []
+      tags: currentQuestion.tags ?
+        (Array.isArray(currentQuestion.tags)
+          ? currentQuestion.tags
+          : [])
+        : []
     }
 
     setQuestions([...questions, question])
@@ -92,12 +94,15 @@ const AssessmentCreator: React.FC<AssessmentCreatorProps> = ({
       return
     }
 
+    const totalPoints = questions.reduce((sum, q) => sum + q.points, 0)
+
     const assessment = assessmentService.createAssessment({
       ...assessmentData,
       createdBy: teacherId,
       createdByName: teacherName,
       questions,
-      tags: assessmentData.tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
+      totalPoints,
+      tags: assessmentData.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t.length > 0)
     })
 
     onSave(assessment)

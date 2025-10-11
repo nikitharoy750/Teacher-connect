@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Plus, BookOpen, Users, TrendingUp, Eye, Edit, Trash2, BarChart3, Clock, Award } from 'lucide-react'
+import { Plus, BookOpen, Users, TrendingUp, Eye, Trash2, BarChart3, Clock, Award } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { assessmentService } from '../services/assessmentService'
 import type { Assessment, AssessmentStats } from '../services/assessmentService'

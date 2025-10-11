@@ -14,6 +14,10 @@ import ModerationDashboard from './pages/ModerationDashboard'
 import CreditsDashboard from './pages/CreditsDashboard'
 import Assessments from './pages/Assessments'
 import TeacherAssessments from './pages/TeacherAssessments'
+import NotesAndModules from './pages/NotesAndModules'
+import OfflineContent from './pages/OfflineContent'
+import AIDoubtResolution from './pages/AIDoubtResolution'
+import Community from './pages/Community'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -94,6 +98,38 @@ function App() {
                 element={
                   <ProtectedRoute requiredRole="teacher">
                     <TeacherAssessments />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notes"
+                element={
+                  <ProtectedRoute>
+                    <NotesAndModules />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/offline"
+                element={
+                  <ProtectedRoute>
+                    <OfflineContent />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ai-doubts"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <AIDoubtResolution />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/community"
+                element={
+                  <ProtectedRoute>
+                    <Community />
                   </ProtectedRoute>
                 }
               />
