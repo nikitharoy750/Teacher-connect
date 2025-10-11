@@ -26,7 +26,7 @@ const AssessmentTaker: React.FC<AssessmentTakerProps> = ({
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false)
   const [questionStartTime, setQuestionStartTime] = useState(Date.now())
   
-  const timerRef = useRef<number | null>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
   const currentQuestion = assessment.questions[currentQuestionIndex]
 
   useEffect(() => {

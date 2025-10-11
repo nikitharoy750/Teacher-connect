@@ -1,5 +1,5 @@
 // OpenAI integration for real AI responses
-// import OpenAI from 'openai' // Uncomment after installing: npm install openai
+import OpenAI from 'openai'
 
 export interface Doubt {
   id: string
@@ -47,14 +47,20 @@ export class AIDoubtService {
   private static openai: any = null
   private static openaiAvailable = false
 
-  // Check if OpenAI is available (after npm install openai)
+  // Initialize OpenAI when available
   private static async initOpenAI() {
-    if (!this.openaiAvailable && import.meta.env.VITE_OPENAI_API_KEY) {
-      // This will be enabled after installing OpenAI package
-      // For now, we'll use mock responses
-      console.log('OpenAI API key detected, but package not installed yet')
-      console.log('Install with: npm install openai')
-      console.log('Using mock responses for now')
+    if (!this.openai && import.meta.env.VITE_OPENAI_API_KEY) {
+      try {
+        this.openai = new OpenAI({
+          apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+          dangerouslyAllowBrowser: true // Only for demo - use backend in production
+        })
+        this.openaiAvailable = true
+        console.log('✅ OpenAI initialized successfully - Real AI responses enabled!')
+      } catch (error) {
+        console.warn('❌ OpenAI initialization failed:', error)
+        console.log('Using mock responses as fallback')
+      }
     }
   }
 
