@@ -1,3 +1,6 @@
+// OpenAI integration for real AI responses
+import OpenAI from 'openai'
+
 export interface Doubt {
   id: string
   question: string
@@ -33,9 +36,30 @@ export interface AIAnalysis {
   confidence_score: number
 }
 
+// Import OpenAI at the top of the file
+// import OpenAI from 'openai'
+
 export class AIDoubtService {
   private static readonly DOUBTS_KEY = 'student_doubts'
   private static readonly RESPONSES_KEY = 'doubt_responses'
+
+  // Initialize OpenAI client (will be set after installing openai package)
+  private static openai: any = null
+
+  // Initialize OpenAI when available
+  private static async initOpenAI() {
+    if (!this.openai && import.meta.env.VITE_OPENAI_API_KEY) {
+      try {
+        const OpenAI = (await import('openai')).default
+        this.openai = new OpenAI({
+          apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+          dangerouslyAllowBrowser: true // Only for demo - use backend in production
+        })
+      } catch (error) {
+        console.warn('OpenAI package not installed, using mock responses')
+      }
+    }
+  }
 
   // Submit a new doubt
   static async submitDoubt(doubtData: {
@@ -156,9 +180,39 @@ export class AIDoubtService {
 
   // Generate AI response based on analysis
   private static async generateResponse(doubt: Doubt, analysis: AIAnalysis): Promise<string> {
-    // In a real implementation, this would use OpenAI API
-    // For demo purposes, we'll generate contextual responses
-    
+    // Initialize OpenAI if available
+    await this.initOpenAI()
+
+    // Try real OpenAI API first
+    if (this.openai && import.meta.env.VITE_OPENAI_API_KEY) {
+      try {
+        const completion = await this.openai.chat.completions.create({
+          model: "gpt-3.5-turbo",
+          messages: [
+            {
+              role: "system",
+              content: `You are an expert ${doubt.subject} teacher for ${doubt.grade_level} students.
+              Provide clear, educational explanations that are appropriate for their grade level.
+              Be encouraging and helpful. Keep responses under 300 words.
+              Focus on these key concepts: ${analysis.key_concepts.join(', ')}.
+              Difficulty level: ${analysis.difficulty_level}`
+            },
+            {
+              role: "user",
+              content: doubt.question
+            }
+          ],
+          max_tokens: 400,
+          temperature: 0.7
+        })
+
+        return completion.choices[0].message.content || "I couldn't generate a response for this question."
+      } catch (apiError) {
+        console.warn('OpenAI API failed, falling back to mock response:', apiError)
+      }
+    }
+
+    // Fallback to mock implementation if API fails or not configured
     const responseTemplates = {
       Mathematics: [
         `To solve this ${analysis.difficulty_level} mathematics problem, let's break it down step by step:
